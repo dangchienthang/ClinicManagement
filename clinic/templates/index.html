@@ -1,10 +1,18 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Welcome</title>
-</head>
-<body>
-    <h1>Hello {{ name }}</h1>
-</body>
-</html>
+{% include 'include.html' %}
+{% include 'navbar.html' %}
+{% block body %}
+<section class="general-area-home">
+        <h1>Book your consultation with your doctor anywhere!</h1>
+        <h3>Create an account and save your profile, then book your apppointment</h3>
+        <div class="row" id="row1">
+            <div class="col offset-lg-0">
+                <h2>New to this website..</h2><a class="btn btn-primary" href="{% url 'createaccountpage' %}">Create Account</a>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <p class="text-center">This website allows the you to book an appointment with the respective doctor whom he want to consult, you can view the old appointments, view the prescription, view the reports. <a data-bs-hover-animate="flash" href="{% url 'aboutpage' %}">For more details..</a></p>
+            </div>
+        </div>
+</section>
+{% endblock %}
