@@ -16,12 +16,12 @@
     <title></title>
 </head>
 <body>
-    {% include 'adminnav.html' %}    
+    {% include 'adminnav.html' %}
     <div id="wrapper">
         {% include 'admin_include.html'%}
         <div class="page-content-wrapper">
             <div class="container-fluid"><a class="btn btn-link" role="button" id="menu-toggle" href="#menu-toggle"><i class="fa fa-bars" style="color: black;"></i></a>
-                <h2 class="text-center">ALL DOCTORS</h2>
+                <h2 class="text-center">ALL PATIENTS</h2>
                 <section id="team" class="pb-5">
                     <div class="container">
                        <table class="table" id="example"><!--table-hover-->
@@ -31,25 +31,26 @@
                                     <th>Email</th>
                                     <th>Gender</th>
                                     <th>Phone Number</th>
+                                    <th>Address</th>
                                     <th>Date of Birth</th>
-                                    <th>Specialization</th>
-                                    <th>Action</th>
+                                    <th>Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {% for i in doc %}
+
+                                {% for i in pat %}
                                 <tr style="color: black;">
                                     <td>{{ i.name }}</td>
                                     <td>{{ i.email }}</td>
                                     <td>{{ i.gender }}</td>
                                     <td>{{ i.phonenumber }}</td>
+                                    <td>{{ i.address }}</td>
                                     <td>{{ i.birthdate }}</td>
-                                    <td>{{ i.specialization }}</td>
-                                    <td><a href="{% url 'admin_delete_doctor' i.id i.email %}" onclick="return confirm('Are you sure you want to delete?')" class="btn btn-danger">Delete</a></td>
+                                    <td><a href="{% url 'admin_delete_patient' i.id  i.email %}" onclick="return confirm('Are you sure you want to delete?')" class="btn btn-danger">Delete</a></td>
                                 </tr>
                                 {% endfor %}
                             </tbody>
-                            
+
                         </table>
                     </div>
                 </section>

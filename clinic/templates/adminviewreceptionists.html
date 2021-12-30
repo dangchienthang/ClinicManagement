@@ -33,7 +33,6 @@
                                     <th>Phone Number</th>
                                     <th>Date of Birth</th>
                                     <th>Blood Group</th>
-                                    <th>Address</th>
                                     <th>Actions</th>
                                 </tr>
                             </thead>
@@ -47,7 +46,6 @@
                                     <td>{{ i.phonenumber }}</td>
                                     <td>{{ i.birthdate }}</td>
                                     <td>{{ i.bloodgroup }}</td>
-                                    <td>{{ i.address }}</td>
                                     <td><a href="{% url 'admin_delete_receptionist' i.id  i.email %}" onclick="return confirm('Are you sure you want to delete?')" class="btn btn-danger">Delete</a></td>
                                 </tr>
                                 {% endfor %}

@@ -3,15 +3,19 @@ from django.contrib.auth.models import User, Group
 from .models import *
 from django.contrib.auth import authenticate, logout, login
 from django.utils import timezone
-
+from django.contrib import messages
 
 # Create your views here.
+
+
 def homepage(request):
     return render(request, 'index.html')
 
 
 def aboutpage(request):
-    return render(request, 'about.html')
+    doc = Doctor.objects.all()
+    d = {'doc': doc}
+    return render(request, 'about.html', d)
 
 
 def loginpage(request):
@@ -55,6 +59,9 @@ def createaccountpage(request):
             pat_group = Group.objects.get(name='Patient')
             pat_group.user_set.add(user)
             user.save()
+
+            messages.success(request, 'Successful')
+
     return render(request, 'createaccount.html')
 
 
@@ -69,18 +76,18 @@ def admin_add_doctor(request):
         repeatpassword = request.POST['repeatpasssword']
         gender = request.POST['gender']
         phonenumber = request.POST['phonenumber']
-        address = request.POST['address']
         birthdate = request.POST['dateofbirth']
         specialization = request.POST['specialization']
 
         if password == repeatpassword:
             Doctor.objects.create(name=name, email=email, password=password, gender=gender, phonenumber=phonenumber,
-                                  address=address, birthdate=birthdate,
-                                  specialization=specialization)
+                                  birthdate=birthdate, specialization=specialization)
             user = User.objects.create_user(first_name=name, email=email, password=password, username=email)
             doc_group = Group.objects.get(name='Doctor')
             doc_group.user_set.add(user)
             user.save()
+
+            messages.success(request, 'Successful')
     return render(request, 'adminadddoctor.html')
 
 
@@ -121,17 +128,17 @@ def admin_add_nurse(request):
         repeatpassword = request.POST['repeatpassword']
         gender = request.POST['gender']
         phonenumber = request.POST['phonenumber']
-        address = request.POST['address']
         birthdate = request.POST['dateofbirth']
 
         if password == repeatpassword:
             Nurse.objects.create(name=name, email=email, password=password, gender=gender, phonenumber=phonenumber,
-                                 address=address, birthdate=birthdate)
+                                 birthdate=birthdate)
             user = User.objects.create_user(first_name=name, email=email, password=password, username=email)
             rec_group = Group.objects.get(name='Nurse')
             rec_group.user_set.add(user)
-            # print(rec_group)
             user.save()
+
+            messages.success(request, 'Successful')
     return render(request, 'adminaddreceptionist.html')
 
 
@@ -153,15 +160,31 @@ def admin_delete_receptionist(request, pid, email):
     return redirect('adminviewReceptionist')
 
 
+def admin_view_patient(request):
+    if not request.user.is_staff:
+        return redirect('login_admin')
+    pat = Patient.objects.all()
+    p = {'pat': pat}
+    return render(request, 'adminviewpatient.html', p)
+
+
+def admin_delete_patient(request, pid, email):
+    if not request.user.is_staff:
+        return redirect('login_admin')
+    patient = Patient.objects.get(id=pid)
+    patient.delete()
+    users = User.objects.filter(username=email)
+    users.delete()
+    return redirect('adminviewpatient')
+
+
 def admin_view_appointment(request):
     if not request.user.is_staff:
         return redirect('login_admin')
     upcomming_appointments = Appointment.objects.filter(appointmentdate__gte=timezone.now(), status=True).order_by(
         'appointmentdate')
-    # print("Upcomming Appointment",upcomming_appointments)
     previous_appointments = Appointment.objects.filter(appointmentdate__lt=timezone.now()).order_by(
         '-appointmentdate') | Appointment.objects.filter(status=False).order_by('-appointmentdate')
-    # print("Previous Appointment",previous_appointments)
     d = {"upcomming_appointments": upcomming_appointments, "previous_appointments": previous_appointments}
     return render(request, 'adminviewappointments.html', d)
 
@@ -257,21 +280,18 @@ def make_appointments(request):
             return render(request, 'pateintmakeappointments.html', d)
 
 
-def viewappointments(request, requsest=None):
+def viewappointments(request):
     if not request.user.is_active:
         return redirect('loginpage')
-    # print(request.user)
     g = request.user.groups.all()[0].name
     if g == 'Patient':
         upcomming_appointments = Appointment.objects.filter(patientemail=request.user,
-                                                            appointmentdate__gte=timezone.now(),
-                                                            status=True).order_by('appointmentdate')
+                                                            appointmentdate__gte=timezone.now(), status=True).order_by(
+            'appointmentdate')
         previous_appointments = Appointment.objects.filter(patientemail=request.user,
-                                                           appointmentdate__lt=timezone.now()
-                                                           ).order_by('-appointmentdate') | \
-                                Appointment.objects.filter(patientemail=request.user,
-                                                           status=False).order_by('-appointmentdate')
-        # print("Previous Appointment",previous_appointments)
+                                                           appointmentdate__lt=timezone.now()).order_by(
+            '-appointmentdate') | Appointment.objects.filter(patientemail=request.user, status=False).order_by(
+            '-appointmentdate')
         d = {"upcomming_appointments": upcomming_appointments, "previous_appointments": previous_appointments}
         return render(request, 'patientviewappointments.html', d)
     elif g == 'Doctor':
@@ -279,29 +299,17 @@ def viewappointments(request, requsest=None):
             prescriptiondata = request.POST['prescription']
             idvalue = request.POST['idofappointment']
             Appointment.objects.filter(id=idvalue).update(prescription=prescriptiondata, status=False)
-        # print(idvalue)
-        # print(pname)
-        # p = {"idvalue":idvalue,"pname":pname}
-        # return render(request,'doctoraddprescription.html',p)
         upcomming_appointments = Appointment.objects.filter(doctoremail=request.user,
-                                                            appointmentdate__gte=timezone.now(),
-                                                            status=True).order_by('appointmentdate')
-        # print("Upcomming Appointment",upcomming_appointments)
-        previous_appointments = Appointment.objects.filter(doctoremail=request.user,
-                                                           appointmentdate__lt=timezone.now()
-                                                           ).order_by('-appointmentdate') | \
-                                Appointment.objects.filter(doctoremail=requsest.user,
-                                                           status=False).order_by('-appointmentdate')
-        # print("Previous Appointment",previous_appointments)
+                                                            appointmentdate__gte=timezone.now(), status=True).order_by(
+            'appointmentdate')
+        previous_appointments = Appointment.objects.filter(appointmentdate__lt=timezone.now()).order_by(
+            '-appointmentdate') | Appointment.objects.filter(status=False).order_by('-appointmentdate')
         d = {"upcomming_appointments": upcomming_appointments, "previous_appointments": previous_appointments}
         return render(request, 'doctorviewappointment.html', d)
-    elif g == 'Receptionist':
-        upcomming_appointments = Appointment.objects.filter(appointmentdate__gte=timezone.now(),
-                                                            status=True).order_by('appointmentdate')
-        # print("Upcomming Appointment",upcomming_appointments)
-        previous_appointments = Appointment.objects.filter(appointmentdate__lt=timezone.now()
-                                                           ).order_by('-appointmentdate') | \
-                                Appointment.objects.filter(status=False).order_by('-appointmentdate')
-        # print("Previous Appointment",previous_appointments)
+    elif g == 'Nurse':
+        upcomming_appointments = Appointment.objects.filter(appointmentdate__gte=timezone.now(), status=True).order_by(
+            'appointmentdate')
+        previous_appointments = Appointment.objects.filter(appointmentdate__lt=timezone.now()).order_by(
+            '-appointmentdate') | Appointment.objects.filter(status=False).order_by('-appointmentdate')
         d = {"upcomming_appointments": upcomming_appointments, "previous_appointments": previous_appointments}
         return render(request, 'receptionviewappointments.html', d)

@@ -17,6 +17,15 @@
                     <div class="col-md-8 offset-md-2">
                         <form class="custom-form" method="post" style="margin-top: 0px;background-color: rgba(0,0,0,0.05);">
                             {% csrf_token %}
+                            <div class="form-row form-group" style="text-align: center">
+                            {% if messages %}
+                                <ul class="messages">
+                                {% for message in messages %}
+                                    <li><div class="alert alert-success">{{ message }}</div></li>
+                                {% endfor %}
+                                </ul>
+                            {% endif %}
+                            </div>
                             <h1 style="color: white;">Add Receptionist</h1>
                             <div class="form-row form-group">
                                 <div class="col-sm-4 label-column">
@@ -71,14 +80,7 @@
                                     <input class="form-control" type="text" name="phonenumber">
                                 </div>
                             </div>
-                            <div class="form-row form-group">
-                                <div class="col-sm-4 label-column">
-                                    <label class="col-form-label" for="name-input-field" style="color: rgb(255,255,255);">Address</label>
-                                </div>
-                                <div class="col-sm-6 input-column">
-                                    <textarea class="form-control" name="address"></textarea>
-                                </div>
-                            </div>
+
                             <div class="form-row form-group">
                                 <div class="col-sm-4 label-column">
                                     <label class="col-form-label" for="name-input-field" style="color: rgb(255,255,255);">Birth Date</label>
