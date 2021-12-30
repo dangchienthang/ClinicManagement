@@ -1,1 +1,1 @@
-Exercise Clinic Management by Django
+Simple Clinic Management by Django
